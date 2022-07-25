@@ -11,6 +11,9 @@ This dataset is a sample of a larger, unfiltered version of the original dataset
 version, we handpicked a list of ”safe” subreddits and removed posts if: 1) they had the ”NSFW” or ”over 18” tags; 2) the videos contained faces or the captions contained toxic or offensive text.
 
 We are only publicly releasing urls such that if a user decides to remove a post, the link to the post will become invalid. This dataset should not be used for tasks that might disclose the identity of the users or directly or indirectly harm them.
+
+More details about the dataset can be found in `DATASHEET.md`, where we answer the questions proposed by [Gebru et al.](https://arxiv.org/abs/1803.09010), which were introduced as a way of documenting new datasets.
+
 # Installation
 
 In order to install the conda environment, [Anaconda](https://conda.io/docs/user-guide/install/download.html) will need to be installed first.
