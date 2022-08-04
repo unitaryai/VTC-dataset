@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>VTC Dataset Explorer</title>
+
+    <style>
+        body {
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        }
+
+        .subredditListing {
+            margin: 0;
+            padding: 0;
+        }
+
+        .subredditListing li {
+            border: solid 1px black;
+            border-radius: 1em;
+            display: inline-block;
+            list-style: none;
+            padding: 0.4em;
+            margin: 0.1em;
+            cursor: pointer;
+        }
+
+        .subredditListing li:hover {
+            background-color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="subreddits">
+
+    </div>
+
+    <div id="subredditSelection">
+
+    </div>
+
+</body>
+
+<script>
+    const escapeHtml = (unsafe) => {
+        return unsafe.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"',
+            '&quot;').replaceAll("'", '&#039;');
+    }
+
+    function getRandomSample(array, count) {
+        // https://stackoverflow.com/a/37834217
+        var indices = [];
+        var result = new Array(count);
+        for (let i = 0; i < count; i++) {
+            let j = Math.floor(Math.random() * (array.length - i) + i);
+            result[i] = array[indices[j] === undefined ? j : indices[j]];
+            indices[j] = indices[i] === undefined ? i : indices[i];
+        }
+        return result;
+    }
+
+    function load_data(data) {
+        let letters = {};
+
+        for (let c of "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+            letters[c] = [];
+        }
+
+        const subs = Object.keys(data);
+        window.subs = subs;
+        window.subData = data;
+
+        subs.forEach((sub, index) => {
+            let firstLetter = sub[0].toUpperCase();
+            letters[firstLetter].push(sub);
+        });
+
+        Object.keys(letters).forEach((letter, index) => {
+            if (!letters[letter].length) {
+                return;
+            }
+
+            let listing = document.getElementById("subreddits");
+
+            let letterHeading = document.createElement("h1");
+            letterHeading.innerText = letter;
+            listing.appendChild(letterHeading);
+
+
+            let subredditListing = document.createElement("ul");
+            subredditListing.className = "subredditListing"
+            listing.appendChild(subredditListing);
+
+            letters[letter].sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
+
+            for (let i = 0; i < letters[letter].length; ++i) {
+                let sub = letters[letter][i];
+
+                let li = document.createElement('li');
+                li.innerText = sub + " (" + data[sub].length + ")";
+                subredditListing.appendChild(li);
+
+                li.addEventListener("click", e => loadSubredditSelectionView(sub));
+            }
+
+        });
+
+        window.onpopstate = function (event) {
+            // Load the right view if back/forward buttons are used
+            loadViewFromQuery();
+        }
+
+        // Load the right view if the original page load had a query string
+        loadViewFromQuery();
+    }
+
+    function loadViewFromQuery() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sub = urlParams.get('sub');
+
+        if (!sub || window.subs.indexOf(sub) == -1) {
+            loadSubredditListingView();
+        } else {
+            loadSubredditSelectionView(sub);
+        }
+
+    }
+
+    function loadSubredditSelectionView(subreddit) {
+        window.scrollTo(0, 0);
+        if ((new URLSearchParams(window.location.search)).get("sub") != subreddit) {
+            window.history.pushState("", "", "?sub=" + subreddit);
+        }
+
+        document.getElementById("subreddits").style = "display: none";
+
+        const subSelection = document.getElementById("subredditSelection");
+        subSelection.style = "display: unset";
+        const backUrl = window.location.href.split('?')[0];
+        let heading = `<a href="${backUrl}" onclick='event.preventDefault(); loadSubredditListingView();')>Back to listing</a>`;
+        heading += "<h1>" + escapeHtml(subreddit) + "</h1>";
+        subSelection.innerHTML = heading;
+
+
+        const examples = window.subData[subreddit];
+        const examplesSubset = getRandomSample(examples, Math.min(10, examples.length));
+
+        debugger;
+
+        for (var i = 0; i < examplesSubset.length; ++i) {
+            let postId = examplesSubset[i][0];
+            let commentIds = examplesSubset[i][1];
+            commentIds = getRandomSample(commentIds, Math.min(5, commentIds.length));
+
+            let videoEmbedStr =
+                `<iframe loading="lazy" id="reddit-embed" src="https://www.redditmedia.com/r/${subreddit}/comments/${postId}/_/?ref_source=embed&amp;ref=share&amp;embed=true" sandbox="allow-scripts allow-same-origin allow-popups" style="border: none;" height="621" width="640" scrolling="no"></iframe>`
+
+            let videoDiv = document.createElement("div");
+            videoDiv.innerHTML = videoEmbedStr;
+            subSelection.appendChild(videoDiv);
+
+            for (var c = 0; c < commentIds.length; ++c) {
+                let commentId = commentIds[c];
+                let commentEmbedStr =
+                    `<iframe loading="lazy" id="reddit-embed" src="https://www.redditmedia.com/r/${subreddit}/comments/${postId}/_/${commentId}/?depth=1&amp;showmore=false&amp;embed=true&amp;showmedia=false" sandbox="allow-scripts allow-same-origin allow-popups" style="border: none;" height="139" width="640" scrolling="no"></iframe>`
+                let commentDiv = document.createElement("div");
+                commentDiv.innerHTML = commentEmbedStr;
+                subSelection.appendChild(commentDiv);
+            }
+
+            subSelection.appendChild(document.createElement("hr"));
+        }
+
+    }
+
+    function loadSubredditListingView() {
+        window.scrollTo(0, 0);
+        if ((new URLSearchParams(window.location.search)).get("sub")) {
+            window.history.pushState("", "", "?");
+        }
+        document.getElementById("subreddits").style = "display: unset";
+        document.getElementById("subredditSelection").style = "display: none";
+        document.getElementById("subredditSelection").innerHTML = "";
+    }
+
+    fetch("dataset_ids.json")
+        .then(response => response.json())
+        .then(json => load_data(json));
+</script>
+
+</html>
