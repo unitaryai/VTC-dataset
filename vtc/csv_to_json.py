@@ -29,8 +29,9 @@ if __name__ == "__main__":
 
     for loc, row in df.iterrows():
         reddit_id = np.base_repr(row.reddit_id, base=36).lower()
-        comment_ids = [x[0] for x in literal_eval(row.comment_ids)[:MAX_N_COMMENTS]]
-        output[row.subreddit].append([reddit_id, comment_ids])
+        all_comms = literal_eval(row.comment_ids)
+        comment_ids = [x[0] for x in all_comms[:MAX_N_COMMENTS]]
+        output[row.subreddit].append([reddit_id, comment_ids, len(all_comms)])
 
     with open(args.output, "w") as f:
         json.dump(output, f)
