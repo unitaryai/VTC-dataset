@@ -74,7 +74,7 @@ python vtc/download_media.py --csv $PUBLIC_CSV --save_to_folder $FOLDER --downlo
 
 ```text
 @inproceedings{hanu2022vtc,
-    title={{VTC: Improving Video-Text Retrieval with User Comments}},
+    title={VTC: Improving Video-Text Retrieval with User Comments},
     author={Laura Hanu and James Thewlis and Yuki M. Asano and Christian Rupprecht},
     booktitle={ECCV},
     year={2022}
