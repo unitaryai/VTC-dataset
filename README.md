@@ -44,7 +44,7 @@ pip install -r requirements.txt
 - `comment_ids`: curated ids of comments and hierarchical depth levels within a comment thread
 
 ```bash
-wget https://github.com/unitaryai/VTC/releases/download/v0.1.0-alpha/VTC_v1.0_public.csv.tar.gz
+wget https://github.com/unitaryai/VTC-dataset/releases/download/v0.1.0-alpha/VTC_v1.0_public.csv.tar.gz
 tar -xvzf VTC_v1.0_public.csv.tar.gz
 ```
 
